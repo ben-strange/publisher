@@ -36,8 +36,8 @@ private
   end
 
   def filtered_editions
-    return Edition if format_filter == 'edition'
-    Edition.where(_type: format_filter.camelcase + 'Edition')
+    return default_edition_scope if format_filter == 'edition'
+    default_edition_scope.where(_type: format_filter.camelcase + 'Edition')
   end
 
   def list_parameter_from_state(state)
@@ -62,5 +62,14 @@ private
     end
 
     [user_filter, user]
+  end
+
+  def default_edition_scope
+    if current_user.has_permission?("only_welsh")
+      welsh_artefact_ids = Artefact.ids_for_language("cy")
+      Edition.where(:panopticon_id.in => welsh_artefact_ids)
+    else
+      Edition
+    end
   end
 end

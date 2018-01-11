@@ -139,6 +139,10 @@ class Artefact
     where(:redirect_url.nin => [nil, ""])
   end
 
+  def self.ids_for_language(locale)
+    where(language: locale).pluck(:_id)
+  end
+
   # Fallback to english if no language is present
   def language
     attributes['language'] || "en"

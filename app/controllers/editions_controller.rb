@@ -6,6 +6,7 @@ class EditionsController < InheritedResources::Base
   defaults resource_class: Edition, collection_name: 'editions', instance_name: 'resource'
   before_action :setup_view_paths, except: [:index, :new, :create]
   after_action :report_state_counts, only: [:create, :duplicate, :progress, :destroy]
+  before_action :check_resource_access
 
   def index
     redirect_to root_path
@@ -324,6 +325,12 @@ protected
   end
 
 private
+
+  def check_resource_access
+    if current_user.has_permission?("only_welsh") && resource.artefact.language != "cy"
+      raise GDS::SSO::ControllerMethods::PermissionDeniedException, "Sorry, you don't seem to have access to this page."
+    end
+  end
 
   def redirect_url
     make_govuk_url_relative params["redirect_url"]
